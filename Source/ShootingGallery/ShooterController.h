@@ -27,6 +27,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
+	class USceneComponent* SceneRootComponent;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Mesh, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* GunMesh;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Camera, meta = (AllowPrivateAccess = "true"))
@@ -37,5 +38,5 @@ private:
 private:
 	void LookUp(float value);
 	void LookRight(float value);
-
+    void Fire();
 };

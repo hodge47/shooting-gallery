@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AShooterController::AShooterController()
@@ -12,9 +13,12 @@ AShooterController::AShooterController()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Create the root component
+	SceneRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
+	SetRootComponent(SceneRootComponent);
+
 	// Create the mesh component
 	GunMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"));
-	RootComponent = GunMesh;
 
 	// Create the spring arm
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
@@ -58,14 +62,46 @@ void AShooterController::LookRight(float value)
 	SpringArm->AddRelativeRotation(NewLookYawRotator);
 }
 
+void AShooterController::Fire()
+{
+	FVector2D ViewportSize;
+	if(GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
 
+	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation, CrosshairWorldPosition, CrosshairWorldDirection);
+
+	if(bScreenToWorld)
+	{
+		FHitResult ScreenTraceHit;
+		const FVector Start = CrosshairWorldPosition;
+		const FVector End = CrosshairWorldPosition + CrosshairWorldDirection * 50000.f;
+
+		FVector BeamEndPoint = End;
+		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
+		if(ScreenTraceHit.bBlockingHit)
+		{
+			BeamEndPoint = ScreenTraceHit.Location;
+			UE_LOG(LogType, Warning, TEXT("Hit Location: (%f, %f, %f)"), BeamEndPoint.X, BeamEndPoint.Y, BeamEndPoint.Z);
+			// Spawn impact particles
+		}
+	}
+}
 
 // Called to bind functionality to input
 void AShooterController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// Camera input
 	PlayerInputComponent->BindAxis("LookUp", this, &AShooterController::LookUp);
 	PlayerInputComponent->BindAxis("LookRight", this, &AShooterController::LookRight);
+	// Controller input
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AShooterController::Fire);
 }
 
