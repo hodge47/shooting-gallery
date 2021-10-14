@@ -2,6 +2,8 @@
 
 
 #include "ShooterController.h"
+
+#include "Target.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -86,9 +88,13 @@ void AShooterController::Fire()
 		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
 		if(ScreenTraceHit.bBlockingHit)
 		{
+			UE_LOG(LogType, Warning, TEXT("Hit Object"));
 			BeamEndPoint = ScreenTraceHit.Location;
-			UE_LOG(LogType, Warning, TEXT("Hit Location: (%f, %f, %f)"), BeamEndPoint.X, BeamEndPoint.Y, BeamEndPoint.Z);
-			// Spawn impact particles
+			ATarget* HitActor = Cast<ATarget>(ScreenTraceHit.GetActor());
+			if(HitActor)
+			{
+				HitActor->DoSomething();
+			}
 		}
 	}
 }
