@@ -30,11 +30,21 @@ public:
 	FVector2D TargetGridSize;
 	UPROPERTY(EditDefaultsOnly, Category="Spawning")
 	FVector2D TargetGridSpacing;
+	UPROPERTY(EditDefaultsOnly, Category="Target Resetting")
+	float ResetTimeSeconds;
 
 private:
+	UPROPERTY()
+	class AShooterController* PlayerController;
 	TArray<ATarget*> SpawnedTargets;
+	int Score;
 
 private:
 	void SpawnTargets();
+	UFUNCTION()
+	void OnTargetWasHit(ATarget* Target);
+	void AddToScore(int points);
+	void ResetTarget(ATarget* Target);
+	void RaiseTarget(ATarget* Target);
 
 };

@@ -22,11 +22,23 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAcces = "true"))
+	class UTargetAnimInstance* TargetAnimInstance;
 
 private:
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Mesh, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* TargetMesh;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category=Mesh, meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* TargetMesh;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category=Scoring, meta = (AllowPrivateAccess = "true"))
+	int Points;
+
+	bool bIsActive;
+	
 
 public:
-	void DoSomething();
+	void HitTarget();
+	void RaiseTarget();
+	int GetPointsValue();
+	void SetTargetActive(bool bTargetIsActive);
+	bool GetIsActive();
+	
 };

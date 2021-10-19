@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Target.h"
 #include "GameFramework/Pawn.h"
 #include "ShooterController.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetHit, ATarget*, Target);
 
 UCLASS()
 class SHOOTINGGALLERY_API AShooterController : public APawn
@@ -25,6 +28,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnTargetHit OnTargetHit;
 
 private:
 	class USceneComponent* SceneRootComponent;

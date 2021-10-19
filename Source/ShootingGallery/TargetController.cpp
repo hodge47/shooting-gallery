@@ -3,7 +3,8 @@
 
 #include "TargetController.h"
 #include "Target.h"
-#include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "ShooterController.h"
 
 // Sets default values
 ATargetController::ATargetController()
@@ -17,8 +18,16 @@ void ATargetController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Get the player controller and sub to target hit event
+	PlayerController = Cast<AShooterController>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if(PlayerController)
+		PlayerController->OnTargetHit.AddDynamic(this, &ATargetController::OnTargetWasHit);
+		
 	// Spawn targets
 	SpawnTargets();
+
+	// Set the score to 0
+	Score = 0;
 }
 
 void ATargetController::SpawnTargets()
@@ -48,6 +57,44 @@ void ATargetController::SpawnTargets()
 			OffsetZ += SpacingZ;
 		}
 	}
+}
+
+void ATargetController::OnTargetWasHit(ATarget* Target)
+{
+	if(Target && Target->GetIsActive())
+	{
+		// Set the target inactive
+		Target->SetTargetActive(false);
+		// Add points to score
+		AddToScore(Target->GetPointsValue());
+		// Reset the target
+		ResetTarget(Target);
+	
+		UE_LOG(LogType, Warning, TEXT("Score: %i"), Score);
+	}
+}
+
+void ATargetController::AddToScore(int points)
+{
+	Score += points;
+}
+
+
+void ATargetController::ResetTarget(ATarget* Target)
+{
+	if(Target)
+	{
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [=]()
+		{
+			Target->RaiseTarget();
+		}, ResetTimeSeconds, false);
+	}
+}
+
+void ATargetController::RaiseTarget(ATarget* Target)
+{
+	Target->RaiseTarget();
 }
 
 

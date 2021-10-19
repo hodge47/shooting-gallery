@@ -2,6 +2,8 @@
 
 
 #include "Target.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "TargetAnimInstance.h"
 
 // Sets default values
 ATarget::ATarget()
@@ -10,14 +12,23 @@ ATarget::ATarget()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Create the target mesh
-	TargetMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Target Mesh"));
+	TargetMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Target Mesh"));
+	RootComponent = TargetMesh;
 }
 
 // Called when the game starts or when spawned
 void ATarget::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Make the target active
+	bIsActive = true;
+
+	// Get the target's animation instance
+	if(TargetMesh)
+	{
+		TargetAnimInstance = Cast<UTargetAnimInstance>(TargetMesh->GetAnimInstance());
+	}
 }
 
 // Called every frame
@@ -28,11 +39,40 @@ void ATarget::Tick(float DeltaTime)
 }
 
 
-void ATarget::DoSomething()
+void ATarget::HitTarget()
 {
-	// Turn off the visibility in the scene until there is an actual animation
-	this->SetActorHiddenInGame(true);
-	this->SetActorEnableCollision(false);
-	this->SetActorTickEnabled(false);
+	if(TargetAnimInstance && bIsActive)
+	{
+		// Trigger the fall animation
+		TargetAnimInstance->InitTargetFall();
+	}
+		
+}
+
+int ATarget::GetPointsValue()
+{
+	return Points;
+}
+
+void ATarget::RaiseTarget()
+{
+	if(TargetAnimInstance && !bIsActive)
+	{
+		// Raise the target up
+		TargetAnimInstance->InitTargetRaise();
+		// Set the target active
+		bIsActive = true;
+	}
+}
+
+void ATarget::SetTargetActive(bool bTargetIsActive)
+{
+	bIsActive = bTargetIsActive;
+}
+
+
+bool ATarget::GetIsActive()
+{
+	return bIsActive;
 }
 

@@ -88,12 +88,13 @@ void AShooterController::Fire()
 		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
 		if(ScreenTraceHit.bBlockingHit)
 		{
-			UE_LOG(LogType, Warning, TEXT("Hit Object"));
 			BeamEndPoint = ScreenTraceHit.Location;
 			ATarget* HitActor = Cast<ATarget>(ScreenTraceHit.GetActor());
 			if(HitActor)
 			{
-				HitActor->DoSomething();
+				HitActor->HitTarget();
+				// Broadcast that a target was hit
+				OnTargetHit.Broadcast(HitActor);
 			}
 		}
 	}
