@@ -96,6 +96,16 @@ void AShooterController::Fire()
 				// Broadcast that a target was hit
 				OnTargetHit.Broadcast(HitActor);
 			}
+			else
+			{
+				// Raise shot missed event dispatcher
+				OnShotMissed.Broadcast();
+			}
+		}
+		else
+		{
+			// Raise shot missed event dispatcher
+			OnShotMissed.Broadcast();
 		}
 	}
 }

@@ -8,6 +8,7 @@
 #include "ShooterController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetHit, ATarget*, Target);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShotMissed);
 
 UCLASS()
 class SHOOTINGGALLERY_API AShooterController : public APawn
@@ -31,6 +32,8 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnTargetHit OnTargetHit;
+	UPROPERTY(BlueprintAssignable)
+	FOnShotMissed OnShotMissed;
 
 private:
 	class USceneComponent* SceneRootComponent;
