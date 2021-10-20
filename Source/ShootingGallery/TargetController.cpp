@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "ShooterController.h"
 #include "ShootingGalleryHUD.h"
+#include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetTree.h"
 
 // Sets default values
 ATargetController::ATargetController()
@@ -27,10 +29,18 @@ void ATargetController::BeginPlay()
 		PlayerController->OnShotMissed.BindUObject(this, &ATargetController::OnShotWasMissed);
 	}
 
-	// Get the HUD
-	HUD = Cast<AShootingGalleryHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-	if(HUD)
-		HUD->SetTargetController(this);
+	// Create the user interface
+	if(IsValid(PlayerHUDToSpawn))
+	{
+		PlayerHUD = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDToSpawn);
+		if(PlayerHUD != nullptr)
+		{
+			PlayerHUD->AddToViewport();
+			TArray<UWidget*> Widgets;
+			PlayerHUD->WidgetTree->GetAllWidgets(Widgets);
+		}
+			
+	}
 		
 	// Spawn targets
 	SpawnTargets();

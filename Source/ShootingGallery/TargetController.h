@@ -38,6 +38,10 @@ public:
 private:
 	UPROPERTY()
 	class AShooterController* PlayerController;
+	UPROPERTY(EditDefaultsOnly, Category="User Interface", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> PlayerHUDToSpawn;
+	UPROPERTY()
+	class UUserWidget* PlayerHUD;
 	UPROPERTY()
 	class AShootingGalleryHUD* HUD;
 	TArray<ATarget*> SpawnedTargets;
@@ -45,6 +49,7 @@ private:
 	int MissedShots;
 
 public:
+	UFUNCTION(BlueprintCallable)
 	float GetRemainingMissedShots();
 
 private:
