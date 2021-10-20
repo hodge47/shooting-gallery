@@ -5,6 +5,7 @@
 #include "Target.h"
 #include "Kismet/GameplayStatics.h"
 #include "ShooterController.h"
+#include "ShootingGalleryHUD.h"
 
 // Sets default values
 ATargetController::ATargetController()
@@ -18,17 +19,28 @@ void ATargetController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Get the player controller and sub to target hit event
+	// Get the player controller and sub to events
 	PlayerController = Cast<AShooterController>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if(PlayerController)
-		PlayerController->OnTargetHit.AddDynamic(this, &ATargetController::OnTargetWasHit);
+	{
+		PlayerController->OnTargetHit.BindUObject(this, &ATargetController::OnTargetWasHit);
+		PlayerController->OnShotMissed.BindUObject(this, &ATargetController::OnShotWasMissed);
+	}
+
+	// Get the HUD
+	HUD = Cast<AShootingGalleryHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	if(HUD)
+		HUD->SetTargetController(this);
 		
 	// Spawn targets
 	SpawnTargets();
 
 	// Set the score to 0
 	Score = 0;
+	// Set missed shots to 0
+	MissedShots = 0;
 }
+
 
 void ATargetController::SpawnTargets()
 {
@@ -74,6 +86,18 @@ void ATargetController::OnTargetWasHit(ATarget* Target)
 	}
 }
 
+void ATargetController::OnShotWasMissed()
+{
+	// Add to missed shots
+	MissedShots++;
+	// End the game if enough shots missed
+	if(MaxAllowedMissedShots > 0 && MissedShots > MaxAllowedMissedShots)
+	{
+		GameOver();
+	}
+}
+
+
 void ATargetController::AddToScore(int points)
 {
 	Score += points;
@@ -105,3 +129,13 @@ void ATargetController::Tick(float DeltaTime)
 
 }
 
+float ATargetController::GetRemainingMissedShots()
+{
+	return float(MaxAllowedMissedShots - MissedShots);
+}
+
+
+void ATargetController::GameOver()
+{
+	UE_LOG(LogType, Warning, TEXT("Game Over!"));
+}

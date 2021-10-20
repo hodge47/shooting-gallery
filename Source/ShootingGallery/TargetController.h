@@ -32,19 +32,28 @@ public:
 	FVector2D TargetGridSpacing;
 	UPROPERTY(EditDefaultsOnly, Category="Target Resetting")
 	float ResetTimeSeconds;
+	UPROPERTY(EditDefaultsOnly, Category="Gameplay Settings")
+	int MaxAllowedMissedShots;
 
 private:
 	UPROPERTY()
 	class AShooterController* PlayerController;
+	UPROPERTY()
+	class AShootingGalleryHUD* HUD;
 	TArray<ATarget*> SpawnedTargets;
 	int Score;
+	int MissedShots;
+
+public:
+	float GetRemainingMissedShots();
 
 private:
 	void SpawnTargets();
 	UFUNCTION()
 	void OnTargetWasHit(ATarget* Target);
+	void OnShotWasMissed();
 	void AddToScore(int points);
 	void ResetTarget(ATarget* Target);
 	void RaiseTarget(ATarget* Target);
-
+	void GameOver();
 };
