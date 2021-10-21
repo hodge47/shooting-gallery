@@ -44,8 +44,11 @@ private:
 	class UUserWidget* PlayerHUD;
 	UPROPERTY()
 	class AShootingGalleryHUD* HUD;
+	UPROPERTY()
 	TArray<ATarget*> SpawnedTargets;
+	UPROPERTY()
 	int Score;
+	UPROPERTY()
 	int MissedShots;
 
 public:
