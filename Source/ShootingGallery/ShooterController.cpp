@@ -4,6 +4,7 @@
 #include "ShooterController.h"
 
 #include "Target.h"
+#include "TargetController.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -38,7 +39,11 @@ AShooterController::AShooterController()
 void AShooterController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Get the TargetController
+	TArray<AActor*> AllTargetControllerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetController::StaticClass(), AllTargetControllerActors);
+	TargetController = Cast<ATargetController>(AllTargetControllerActors[0]);
 }
 
 // Called every frame
@@ -80,6 +85,8 @@ void AShooterController::Fire()
 
 	if(bScreenToWorld)
 	{
+		if(!IsValid(TargetController) || !TargetController->GetIsGameActive()) return;
+		
 		FHitResult ScreenTraceHit;
 		const FVector Start = CrosshairWorldPosition;
 		const FVector End = CrosshairWorldPosition + CrosshairWorldDirection * 50000.f;

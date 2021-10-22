@@ -49,6 +49,11 @@ void ATargetController::BeginPlay()
 	Score = 0;
 	// Set missed shots to 0
 	MissedShots = 0;
+
+	// Set the game state to not active
+	bIsGameActive = false;
+	// Start the game after x seconds
+	GetWorld()->GetTimerManager().SetTimer(GameTimerHandle, this, &ATargetController::StartGame, 3.f, false);
 }
 
 
@@ -81,9 +86,16 @@ void ATargetController::SpawnTargets()
 	}
 }
 
+void ATargetController::StartGame()
+{
+	bIsGameActive = true;
+	// Start the game timer
+	GetWorld()->GetTimerManager().SetTimer(GameTimerHandle, this, &ATargetController::GameOver, GameTimeInSeconds, false);
+}
+
 void ATargetController::OnTargetWasHit(ATarget* Target)
 {
-	if(Target && Target->GetIsActive())
+	if(Target && Target->GetIsActive() && bIsGameActive)
 	{
 		// Set the target inactive
 		Target->SetTargetActive(false);
@@ -137,15 +149,46 @@ void ATargetController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Get the time left in the game
+	GetTimeLeft();
 }
 
-float ATargetController::GetRemainingMissedShots()
+int ATargetController::GetRemainingMissedShots()
 {
-	return float(MaxAllowedMissedShots - MissedShots);
+	return int(MaxAllowedMissedShots - MissedShots);
 }
+
+// Modified function from https://mylittledevblog.wordpress.com/2018/02/15/ue4-add-leading-zeroes/
+FString ATargetController::GetPrettyCurrentScore()
+{
+	char Buffer[100];
+	int RespCode;
+	RespCode = snprintf(Buffer, 100, "%0*d", 7, Score);
+	return FString(ANSI_TO_TCHAR(Buffer));
+}
+
 
 
 void ATargetController::GameOver()
 {
-	UE_LOG(LogType, Warning, TEXT("Game Over!"));
+	// Set the game to inactive so the player cannot score anymore
+	bIsGameActive = false;
+
+	// End any timers that we might have going
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
+bool ATargetController::GetIsGameActive()
+{
+	return bIsGameActive;
+}
+
+
+int ATargetController::GetTimeLeft()
+{
+	if(!bIsGameActive) return -1;
+	
+	int TimeLeft = int(GetWorld()->GetTimerManager().GetTimerRemaining(GameTimerHandle));
+
+	return TimeLeft;
 }

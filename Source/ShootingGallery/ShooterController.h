@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Target.h"
+
 #include "GameFramework/Pawn.h"
 #include "ShooterController.generated.h"
 
-DECLARE_DELEGATE_OneParam(FOnTargetHit, ATarget*);
+DECLARE_DELEGATE_OneParam(FOnTargetHit, class ATarget*);
 DECLARE_DELEGATE(FOnShotMissed);
 
 UCLASS()
@@ -41,6 +41,8 @@ private:
 	class USpringArmComponent* SpringArm;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
+
+	class ATargetController* TargetController;
 
 private:
 	void LookUp(float value);

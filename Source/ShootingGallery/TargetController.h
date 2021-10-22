@@ -27,13 +27,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Spawning")
 	TSubclassOf<class ATarget> TargetActor;
 	UPROPERTY(EditDefaultsOnly, Category="Spawning")
-	FVector2D TargetGridSize;
+	FVector2D TargetGridSize = FVector2D(3.f, 4.f);
 	UPROPERTY(EditDefaultsOnly, Category="Spawning")
-	FVector2D TargetGridSpacing;
+	FVector2D TargetGridSpacing = FVector2D(50.f, 100.f);
 	UPROPERTY(EditDefaultsOnly, Category="Target Resetting")
-	float ResetTimeSeconds;
+	float ResetTimeSeconds = 2.f;
 	UPROPERTY(EditDefaultsOnly, Category="Gameplay Settings")
-	int MaxAllowedMissedShots;
+	int MaxAllowedMissedShots = 3;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Gameplay Settings")
+	int GameTimeInSeconds = 60;
 
 private:
 	UPROPERTY()
@@ -51,12 +53,23 @@ private:
 	UPROPERTY()
 	int MissedShots;
 
+	FTimerHandle StartGameTimerHandle;
+	FTimerHandle GameTimerHandle;
+	bool bIsGameActive;
+
 public:
 	UFUNCTION(BlueprintCallable)
-	float GetRemainingMissedShots();
+	int GetRemainingMissedShots();
+	UFUNCTION(BlueprintCallable)
+	FString GetPrettyCurrentScore();
+	UFUNCTION(BlueprintCallable)
+	bool GetIsGameActive();
+	UFUNCTION(BlueprintCallable)
+	int GetTimeLeft();
 
 private:
 	void SpawnTargets();
+	void StartGame();
 	UFUNCTION()
 	void OnTargetWasHit(ATarget* Target);
 	void OnShotWasMissed();
