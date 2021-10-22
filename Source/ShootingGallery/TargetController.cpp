@@ -53,7 +53,7 @@ void ATargetController::BeginPlay()
 	// Set the game state to not active
 	bIsGameActive = false;
 	// Start the game after x seconds
-	GetWorld()->GetTimerManager().SetTimer(GameTimerHandle, this, &ATargetController::StartGame, 3.f, false);
+	GetWorld()->GetTimerManager().SetTimer(StartGameTimerHandle, this, &ATargetController::StartGame, 3.5f, false);
 }
 
 
@@ -148,9 +148,6 @@ void ATargetController::RaiseTarget(ATarget* Target)
 void ATargetController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	// Get the time left in the game
-	GetTimeLeft();
 }
 
 int ATargetController::GetRemainingMissedShots()
@@ -186,9 +183,12 @@ bool ATargetController::GetIsGameActive()
 
 int ATargetController::GetTimeLeft()
 {
-	if(!bIsGameActive) return -1;
+	int TimeLeft = 0;
 	
-	int TimeLeft = int(GetWorld()->GetTimerManager().GetTimerRemaining(GameTimerHandle));
+	if(!bIsGameActive)
+		TimeLeft = int(GetWorld()->GetTimerManager().GetTimerRemaining(StartGameTimerHandle));
+	else
+		TimeLeft = int(GetWorld()->GetTimerManager().GetTimerRemaining(GameTimerHandle));
 
 	return TimeLeft;
 }
