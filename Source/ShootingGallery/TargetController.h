@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/SaveGame.h"
+#include "Kismet/GameplayStatics.h"
 #include "TargetController.generated.h"
 
 UCLASS()
@@ -56,16 +58,22 @@ private:
 	int Score;
 	UPROPERTY()
 	int MissedShots;
+	UPROPERTY()
+	int HighScore;
 
 	FTimerHandle StartGameTimerHandle;
 	FTimerHandle GameTimerHandle;
 	bool bIsGameActive;
+
+	FAsyncLoadGameFromSlotDelegate LoadedDelegate;
 
 public:
 	UFUNCTION(BlueprintCallable)
 	int GetRemainingMissedShots();
 	UFUNCTION(BlueprintCallable)
 	FString GetPrettyCurrentScore();
+	UFUNCTION(BlueprintCallable)
+	FString GetPrettyHighScore();
 	UFUNCTION(BlueprintCallable)
 	bool GetIsGameActive();
 	UFUNCTION(BlueprintCallable)
@@ -83,4 +91,5 @@ private:
 	void ResetTarget(ATarget* Target);
 	void RaiseTarget(ATarget* Target);
 	void GameOver();
+	void OnLoadedHighScore(const FString& SlotName, const int32 UserIndex, class USaveGame* LoadedGameData);
 };

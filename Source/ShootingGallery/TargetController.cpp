@@ -2,6 +2,8 @@
 
 
 #include "TargetController.h"
+
+#include "HighScoreSaveGame.h"
 #include "Target.h"
 #include "Kismet/GameplayStatics.h"
 #include "ShooterController.h"
@@ -46,12 +48,27 @@ void ATargetController::BeginPlay()
 	Score = 0;
 	// Set missed shots to 0
 	MissedShots = 0;
+	// Get the high score
+	HighScore = 0;
+	LoadedDelegate.BindUObject(this, &ATargetController::OnLoadedHighScore);
+	UGameplayStatics::AsyncLoadGameFromSlot(TEXT("high_score"), 0, LoadedDelegate);
 
 	// Set the game state to not active
 	bIsGameActive = false;
 	// Start the game after x seconds
 	GetWorld()->GetTimerManager().SetTimer(StartGameTimerHandle, this, &ATargetController::StartGame, 3.5f, false);
 }
+
+void ATargetController::OnLoadedHighScore(const FString& SlotName, const int32 UserIndex, class USaveGame* LoadedGameData)
+{
+	const auto HighScoreSaveGameData = Cast<UHighScoreSaveGame>(LoadedGameData);
+	if(HighScoreSaveGameData && HighScoreSaveGameData->HighScore > 0)
+	{
+		HighScore = HighScoreSaveGameData->HighScore;
+		UE_LOG(LogType, Warning, TEXT("High score: %i"), HighScore);
+	}
+}
+
 
 
 void ATargetController::SpawnTargets()
@@ -110,7 +127,7 @@ void ATargetController::OnShotWasMissed()
 	// Add to missed shots
 	MissedShots++;
 	// End the game if enough shots missed
-	if(MaxAllowedMissedShots > 0 && MissedShots > MaxAllowedMissedShots)
+	if(MaxAllowedMissedShots > 0 && MissedShots > MaxAllowedMissedShots - 1)
 	{
 		GameOver();
 	}
@@ -120,6 +137,19 @@ void ATargetController::OnShotWasMissed()
 void ATargetController::AddToScore(int points)
 {
 	Score += points;
+
+	// Save the high score
+	if(Score > HighScore)
+	{
+		HighScore = Score;
+		if(UHighScoreSaveGame* SaveGameInstance = Cast<UHighScoreSaveGame>(UGameplayStatics::CreateSaveGameObject(UHighScoreSaveGame::StaticClass())))
+		{
+			// Save the high score
+			SaveGameInstance->HighScore = HighScore;
+			// Start async save process
+			UGameplayStatics::AsyncSaveGameToSlot(SaveGameInstance, TEXT("high_score"), 0);
+		}
+	}
 }
 
 
@@ -161,7 +191,14 @@ FString ATargetController::GetPrettyCurrentScore()
 	return FString(ANSI_TO_TCHAR(Buffer));
 }
 
-
+// Modified function from https://mylittledevblog.wordpress.com/2018/02/15/ue4-add-leading-zeroes/
+FString ATargetController::GetPrettyHighScore()
+{
+	char Buffer[100];
+	int RespCode;
+	RespCode = snprintf(Buffer, 100, "%0*d", 7, HighScore);
+	return FString(ANSI_TO_TCHAR(Buffer));
+}
 
 void ATargetController::GameOver()
 {

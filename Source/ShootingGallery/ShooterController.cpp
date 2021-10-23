@@ -43,7 +43,8 @@ void AShooterController::BeginPlay()
 	// Get the TargetController
 	TArray<AActor*> AllTargetControllerActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetController::StaticClass(), AllTargetControllerActors);
-	TargetController = Cast<ATargetController>(AllTargetControllerActors[0]);
+	if(AllTargetControllerActors.Num() > 0)
+		TargetController = Cast<ATargetController>(AllTargetControllerActors[0]);
 }
 
 // Called every frame
