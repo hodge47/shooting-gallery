@@ -39,11 +39,15 @@ public:
 
 private:
 	UPROPERTY()
-	class AShooterController* PlayerController;
+	class AShooterController* ShooterController;
 	UPROPERTY(EditDefaultsOnly, Category="User Interface", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UUserWidget> PlayerHUDToSpawn;
+	TSubclassOf<UUserWidget> PlayerWidgetToSpawn;
 	UPROPERTY()
-	class UUserWidget* PlayerHUD;
+	class UUserWidget* PlayerWidget;
+	UPROPERTY(EditDefaultsOnly, Category="User Interface", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> GameOverWidgetToSpawn;
+	UPROPERTY()
+	class UUserWidget* GameOverWidget;
 	UPROPERTY()
 	class AShootingGalleryHUD* HUD;
 	UPROPERTY()
@@ -66,6 +70,8 @@ public:
 	bool GetIsGameActive();
 	UFUNCTION(BlueprintCallable)
 	int GetTimeLeft();
+	UFUNCTION(BlueprintCallable)
+	void RestartGame();
 
 private:
 	void SpawnTargets();

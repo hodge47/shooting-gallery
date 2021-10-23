@@ -22,24 +22,21 @@ void ATargetController::BeginPlay()
 	Super::BeginPlay();
 
 	// Get the player controller and sub to events
-	PlayerController = Cast<AShooterController>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if(PlayerController)
+	ShooterController = Cast<AShooterController>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if(ShooterController)
 	{
-		PlayerController->OnTargetHit.BindUObject(this, &ATargetController::OnTargetWasHit);
-		PlayerController->OnShotMissed.BindUObject(this, &ATargetController::OnShotWasMissed);
+		ShooterController->OnTargetHit.BindUObject(this, &ATargetController::OnTargetWasHit);
+		ShooterController->OnShotMissed.BindUObject(this, &ATargetController::OnShotWasMissed);
 	}
 
 	// Create the user interface
-	if(IsValid(PlayerHUDToSpawn))
+	if(IsValid(PlayerWidgetToSpawn))
 	{
-		PlayerHUD = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDToSpawn);
-		if(PlayerHUD != nullptr)
+		PlayerWidget = CreateWidget<UUserWidget>(GetWorld(), PlayerWidgetToSpawn);
+		if(PlayerWidget != nullptr)
 		{
-			PlayerHUD->AddToViewport();
-			TArray<UWidget*> Widgets;
-			PlayerHUD->WidgetTree->GetAllWidgets(Widgets);
+			PlayerWidget->AddToViewport();
 		}
-			
 	}
 		
 	// Spawn targets
@@ -173,6 +170,22 @@ void ATargetController::GameOver()
 
 	// End any timers that we might have going
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	// Display the game over widget
+	if(IsValid(GameOverWidgetToSpawn))
+	{
+		GameOverWidget = CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetToSpawn);
+		if(GameOverWidget != nullptr)
+		{
+			GameOverWidget->AddToViewport();
+			GameOverWidget->SetFocus();
+			// Make sure to enter UI input mode
+			auto PlayerController = GetWorld()->GetFirstPlayerController();
+			PlayerController->SetInputMode(FInputModeUIOnly());
+			PlayerController->SetShowMouseCursor(true);
+			
+		}
+	}
 }
 
 bool ATargetController::GetIsGameActive()
@@ -192,3 +205,17 @@ int ATargetController::GetTimeLeft()
 
 	return TimeLeft;
 }
+
+void ATargetController::RestartGame()
+{
+	// Set the score to 0
+	Score = 0;
+	// Set missed shots to 0
+	MissedShots = 0;
+
+	// Set the game state to not active
+	bIsGameActive = false;
+	// Start the game after x seconds
+	GetWorld()->GetTimerManager().SetTimer(StartGameTimerHandle, this, &ATargetController::StartGame, 3.5f, false);
+}
+
