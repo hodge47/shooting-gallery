@@ -16,6 +16,9 @@ class SHOOTINGGALLERY_API UHighScoreSaveGame : public USaveGame
 
 public:
 	UHighScoreSaveGame();
+
+	UFUNCTION(BlueprintCallable)
+	FString GetPrettyHighScore();
 	
 	UPROPERTY(VisibleAnywhere, Category="Scoring")
 	int HighScore;
