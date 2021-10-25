@@ -183,20 +183,10 @@ int ATargetController::GetRemainingMissedShots()
 }
 
 // Modified function from https://mylittledevblog.wordpress.com/2018/02/15/ue4-add-leading-zeroes/
-FString ATargetController::GetPrettyCurrentScore()
+FString ATargetController::GetPrettyInteger(int InputInteger)
 {
 	char Buffer[100];
-	int RespCode;
-	RespCode = snprintf(Buffer, 100, "%0*d", 7, Score);
-	return FString(ANSI_TO_TCHAR(Buffer));
-}
-
-// Modified function from https://mylittledevblog.wordpress.com/2018/02/15/ue4-add-leading-zeroes/
-FString ATargetController::GetPrettyHighScore()
-{
-	char Buffer[100];
-	int RespCode;
-	RespCode = snprintf(Buffer, 100, "%0*d", 7, HighScore);
+	snprintf(Buffer, 100, "%0*d", 7, InputInteger);
 	return FString(ANSI_TO_TCHAR(Buffer));
 }
 
@@ -242,6 +232,18 @@ int ATargetController::GetTimeLeft()
 
 	return TimeLeft;
 }
+
+int ATargetController::GetCurrentScore()
+{
+	return Score;
+}
+
+int ATargetController::GetHighScore()
+{
+	return HighScore;
+}
+
+
 
 void ATargetController::RestartGame()
 {

@@ -71,16 +71,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int GetRemainingMissedShots();
 	UFUNCTION(BlueprintCallable)
-	FString GetPrettyCurrentScore();
-	UFUNCTION(BlueprintCallable)
-	FString GetPrettyHighScore();
-	UFUNCTION(BlueprintCallable)
 	bool GetIsGameActive();
 	UFUNCTION(BlueprintCallable)
 	int GetTimeLeft();
 	UFUNCTION(BlueprintCallable)
+	int GetCurrentScore();
+	UFUNCTION(BlueprintCallable)
+	int GetHighScore();
+	UFUNCTION(BlueprintCallable)
 	void RestartGame();
-
+	UFUNCTION(BlueprintCallable)
+	FString GetPrettyInteger(int InputInteger);
+	
 private:
 	void SpawnTargets();
 	void StartGame();
