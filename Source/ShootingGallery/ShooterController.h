@@ -39,14 +39,20 @@ private:
 	// Root scene component
 	class USceneComponent* SceneRootComponent;
 	// The bb gun static mesh
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Mesh, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category=Mesh, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* GunMesh;
 	// Spring arm component to operate camera
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category=Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
 	// The main game camera
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category=Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
+	// Shot hit sound cue
+	UPROPERTY(EditDefaultsOnly, Category="Sounds", meta = (AllowPrivateAccess = "true"))
+	class USoundCue* ShotHitSoundCue;
+	UPROPERTY(EditDefaultsOnly, Category="Sounds", meta = (AllowPrivateAccess = "true"))
+	class USoundCue* ShotMissedSoundCue;
+	
 	// Target controller reference
 	class ATargetController* TargetController;
 

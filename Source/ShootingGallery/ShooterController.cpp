@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AShooterController::AShooterController()
@@ -111,15 +112,22 @@ void AShooterController::Fire()
 			// If the actor hit was a target, broadcast that a target was hit. It's up to the TargetController to validate score and legal hit if it is subscribed
 			if(HitActor)
 			{
+				// Tell the target is was hit
 				HitActor->HitTarget();
 				// Broadcast that a target was hit
 				OnTargetHit.ExecuteIfBound(HitActor);
+				// Play the shot hit sound cue
+				if(ShotHitSoundCue)
+					UGameplayStatics::PlaySound2D(GetWorld(), ShotHitSoundCue, 1.f, 1.f, 0.f);
 			}
 			// If the actor is not a target, broadcast that the shot was missed.
 			else
 			{
 				// Raise shot missed event dispatcher
 				OnShotMissed.ExecuteIfBound();
+				// Play the shot missed sound cue
+				if(ShotMissedSoundCue)
+					UGameplayStatics::PlaySound2D(GetWorld(), ShotMissedSoundCue, 1.f, 1.f, 0.f);
 			}
 
 			// Spawn impact particles here if desired using the hit location
@@ -130,6 +138,9 @@ void AShooterController::Fire()
 		{
 			// Raise shot missed event dispatcher
 			OnShotMissed.ExecuteIfBound();
+			// Play the shot missed sound cue
+			if(ShotMissedSoundCue)
+				UGameplayStatics::PlaySound2D(GetWorld(), ShotMissedSoundCue, 1.f, 1.f, 0.f);
 		}
 	}
 }
