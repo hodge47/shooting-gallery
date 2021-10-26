@@ -38,7 +38,7 @@ void ATarget::Tick(float DeltaTime)
 
 }
 
-
+// Called by the target controller to tell this target to go inactive and play the falling animation
 void ATarget::HitTarget()
 {
 	if(TargetAnimInstance && bIsActive)
@@ -49,11 +49,7 @@ void ATarget::HitTarget()
 		
 }
 
-int ATarget::GetPointsValue()
-{
-	return Points;
-}
-
+// Called by the target controller to tell this target to go active and play the raising animation
 void ATarget::RaiseTarget()
 {
 	if(TargetAnimInstance && !bIsActive)
@@ -65,12 +61,19 @@ void ATarget::RaiseTarget()
 	}
 }
 
+// Returns the points value of this target
+int ATarget::GetPointsValue()
+{
+	return Points;
+}
+
+// Set the target active or inactive based on the supplied argument
 void ATarget::SetTargetActive(bool bTargetIsActive)
 {
 	bIsActive = bTargetIsActive;
 }
 
-
+// Returns the active state of the target
 bool ATarget::GetIsActive()
 {
 	return bIsActive;

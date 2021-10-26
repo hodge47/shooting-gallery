@@ -22,23 +22,32 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	// The target's animation instance class
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAcces = "true"))
 	class UTargetAnimInstance* TargetAnimInstance;
 
 private:
+	// The target mesh that will be shot at by the player
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category=Mesh, meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* TargetMesh;
+	// The amount of points the target is worth
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category=Scoring, meta = (AllowPrivateAccess = "true"))
 	int Points;
-
+	// Is the target active? True = target is up in animation state, False = target is down in animation state
 	bool bIsActive;
 	
 
 public:
+	// Called by the target controller to tell this target to go inactive and play the falling animation
 	void HitTarget();
+	// Called by the target controller to tell this target to go active and play the raising animation
 	void RaiseTarget();
+	// Returns the points value of this target
 	int GetPointsValue();
+	// Set the target active or inactive based on the supplied argument
 	void SetTargetActive(bool bTargetIsActive);
+	// Returns the active state of the target
 	bool GetIsActive();
 	
 };

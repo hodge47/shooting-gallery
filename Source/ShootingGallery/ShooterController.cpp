@@ -40,7 +40,7 @@ void AShooterController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Get the TargetController
+	// Get the TargetController - there should only be one in the scene so we will grab the first one
 	TArray<AActor*> AllTargetControllerActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetController::StaticClass(), AllTargetControllerActors);
 	if(AllTargetControllerActors.Num() > 0)
@@ -54,6 +54,7 @@ void AShooterController::Tick(float DeltaTime)
 
 }
 
+// Input bound function to look up and down
 void AShooterController::LookUp(float value)
 {
 	if(value == 0.f) return;
@@ -62,6 +63,7 @@ void AShooterController::LookUp(float value)
 	SpringArm->AddRelativeRotation(NewLookPitchRotator);
 }
 
+// Input bound function to look right and left
 void AShooterController::LookRight(float value)
 {
 	if(value == 0.f) return;
@@ -70,46 +72,60 @@ void AShooterController::LookRight(float value)
 	SpringArm->AddRelativeRotation(NewLookYawRotator);
 }
 
+// Input bound function to fire bb gun
 void AShooterController::Fire()
 {
+	// Get the viewport size so we can get the center of the screen
 	FVector2D ViewportSize;
 	if(GEngine && GEngine->GameViewport)
 	{
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
 
+	// Set the middle of the screen where the crosshair visuals will be
 	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
 
+	// De-project screen to world so we know where to fire the line trace from
 	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation, CrosshairWorldPosition, CrosshairWorldDirection);
 
+	// If de-projection was successful, allow the gun to fire
 	if(bScreenToWorld)
 	{
+		// Return if there is no TargetController or if the game is not active
 		if(!IsValid(TargetController) || !TargetController->GetIsGameActive()) return;
 		
 		FHitResult ScreenTraceHit;
 		const FVector Start = CrosshairWorldPosition;
 		const FVector End = CrosshairWorldPosition + CrosshairWorldDirection * 50000.f;
+		FVector LineTraceHitLocation = End;
 
-		FVector BeamEndPoint = End;
+		// Invoke line trace from the de-projected point in world space
 		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
+		
+		// If there is a blocking hit, see if we hit a target or hit something else
 		if(ScreenTraceHit.bBlockingHit)
 		{
-			BeamEndPoint = ScreenTraceHit.Location;
 			ATarget* HitActor = Cast<ATarget>(ScreenTraceHit.GetActor());
+			// If the actor hit was a target, broadcast that a target was hit. It's up to the TargetController to validate score and legal hit if it is subscribed
 			if(HitActor)
 			{
 				HitActor->HitTarget();
 				// Broadcast that a target was hit
 				OnTargetHit.ExecuteIfBound(HitActor);
 			}
+			// If the actor is not a target, broadcast that the shot was missed.
 			else
 			{
 				// Raise shot missed event dispatcher
 				OnShotMissed.ExecuteIfBound();
 			}
+
+			// Spawn impact particles here if desired using the hit location
+			LineTraceHitLocation = ScreenTraceHit.Location;
 		}
+		// If there was no blocking hit, broadcast that the shot was missed
 		else
 		{
 			// Raise shot missed event dispatcher
@@ -126,7 +142,7 @@ void AShooterController::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	// Camera input
 	PlayerInputComponent->BindAxis("LookUp", this, &AShooterController::LookUp);
 	PlayerInputComponent->BindAxis("LookRight", this, &AShooterController::LookRight);
-	// Controller input
+	// ShooterController input
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AShooterController::Fire);
 }
 

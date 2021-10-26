@@ -59,6 +59,13 @@ void ATargetController::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(StartGameTimerHandle, this, &ATargetController::StartGame, 3.5f, false);
 }
 
+// Called every frame
+void ATargetController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+// Subscribes to the high score load delegate
 void ATargetController::OnLoadedHighScore(const FString& SlotName, const int32 UserIndex, class USaveGame* LoadedGameData)
 {
 	const auto HighScoreSaveGameData = Cast<UHighScoreSaveGame>(LoadedGameData);
@@ -70,16 +77,18 @@ void ATargetController::OnLoadedHighScore(const FString& SlotName, const int32 U
 }
 
 
-
+// Spawns the targets on the grid
 void ATargetController::SpawnTargets()
 {
+	// Build grid specifications
 	const int GridX = (int)TargetGridSize.X;
 	const int GridY = (int)TargetGridSize.Y;
 	const float SpacingY = TargetGridSpacing.X;
 	const float SpacingZ = TargetGridSpacing.Y;
 	float OffsetY = GetActorLocation().Y;
 	float OffsetZ = GetActorLocation().Z;
-	
+
+	// Continue if the target actor to spawn is valid
 	if(TargetActor)
 	{
 		FActorSpawnParameters SpawnParameters;
@@ -87,6 +96,7 @@ void ATargetController::SpawnTargets()
 		{
 			for (int j = 0; j < GridY; j++)
 			{
+				// Spawn a target at a specific spacing
 				ATarget* SpawnedTarget = GetWorld()->SpawnActor<ATarget>(TargetActor, GetActorLocation(), GetActorRotation(), SpawnParameters);
 				SpawnedTarget->SetActorLocation(FVector(GetActorLocation().X, OffsetY, OffsetZ));
 				SpawnedTargets.Push(SpawnedTarget);
@@ -100,13 +110,16 @@ void ATargetController::SpawnTargets()
 	}
 }
 
+// Starts the game
 void ATargetController::StartGame()
 {
+	// Set the game active
 	bIsGameActive = true;
 	// Start the game timer
 	GetWorld()->GetTimerManager().SetTimer(GameTimerHandle, this, &ATargetController::GameOver, GameTimeInSeconds, false);
 }
 
+// Subscribes to ShooterController hit delegate
 void ATargetController::OnTargetWasHit(ATarget* Target)
 {
 	if(Target && Target->GetIsActive() && bIsGameActive)
@@ -122,6 +135,7 @@ void ATargetController::OnTargetWasHit(ATarget* Target)
 	}
 }
 
+// Subscribes to ShooterController shot missed delegate
 void ATargetController::OnShotWasMissed()
 {
 	// Add to missed shots
@@ -133,12 +147,13 @@ void ATargetController::OnShotWasMissed()
 	}
 }
 
-
+// Adds points to the current player score
 void ATargetController::AddToScore(int points)
 {
+	// Add to the score by points passed in
 	Score += points;
 
-	// Save the high score
+	// Save the high score if the current score is bigger than the latest high score
 	if(Score > HighScore)
 	{
 		HighScore = Score;
@@ -152,7 +167,7 @@ void ATargetController::AddToScore(int points)
 	}
 }
 
-
+// Waits x seconds to raise the target
 void ATargetController::ResetTarget(ATarget* Target)
 {
 	if(Target)
@@ -160,29 +175,28 @@ void ATargetController::ResetTarget(ATarget* Target)
 		FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [=]()
 		{
+			// Raise the target
 			Target->RaiseTarget();
 		}, ResetTimeSeconds, false);
 	}
 }
 
+// Calls the RaiseTarget function on any target in the target list
 void ATargetController::RaiseTarget(ATarget* Target)
 {
 	Target->RaiseTarget();
 }
 
-
-// Called every frame
-void ATargetController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
+// Gets how many missed shots the player has left
 int ATargetController::GetRemainingMissedShots()
 {
 	return int(MaxAllowedMissedShots - MissedShots);
 }
 
+/*
+// Gets a formatted version of an inputted integer: 247 -> 0000247
 // Modified function from https://mylittledevblog.wordpress.com/2018/02/15/ue4-add-leading-zeroes/
+*/
 FString ATargetController::GetPrettyInteger(int InputInteger)
 {
 	char Buffer[100];
@@ -190,6 +204,7 @@ FString ATargetController::GetPrettyInteger(int InputInteger)
 	return FString(ANSI_TO_TCHAR(Buffer));
 }
 
+// Ends the game and displays the GameOver widget
 void ATargetController::GameOver()
 {
 	// Set the game to inactive so the player cannot score anymore
@@ -204,6 +219,7 @@ void ATargetController::GameOver()
 		GameOverWidget = CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetToSpawn);
 		if(GameOverWidget != nullptr)
 		{
+			// Add the game over widget to the viewport and focus it
 			GameOverWidget->AddToViewport();
 			GameOverWidget->SetFocus();
 			// Make sure to enter UI input mode
@@ -215,16 +231,18 @@ void ATargetController::GameOver()
 	}
 }
 
+// Gets the active state of the game
 bool ATargetController::GetIsGameActive()
 {
 	return bIsGameActive;
 }
 
-
+// Gets the time left in the active game
 int ATargetController::GetTimeLeft()
 {
 	int TimeLeft = 0;
-	
+
+	// Just supply the time based on the current game state - this can probably be made more intuitive
 	if(!bIsGameActive)
 		TimeLeft = int(GetWorld()->GetTimerManager().GetTimerRemaining(StartGameTimerHandle));
 	else
@@ -233,18 +251,19 @@ int ATargetController::GetTimeLeft()
 	return TimeLeft;
 }
 
+// Gets the player's current score in the active game
 int ATargetController::GetCurrentScore()
 {
 	return Score;
 }
 
+// Gets the player's all-time high score
 int ATargetController::GetHighScore()
 {
 	return HighScore;
 }
 
-
-
+// Resets the game state/score/time and restarts the game
 void ATargetController::RestartGame()
 {
 	// Set the score to 0
@@ -257,4 +276,3 @@ void ATargetController::RestartGame()
 	// Start the game after x seconds
 	GetWorld()->GetTimerManager().SetTimer(StartGameTimerHandle, this, &ATargetController::StartGame, 3.5f, false);
 }
-

@@ -4,18 +4,24 @@
 #include "TargetAnimInstance.h"
 #include "Target.h"
 
+void UTargetAnimInstance::NativeInitializeAnimation()
+{
+	Target = Cast<ATarget>(TryGetPawnOwner());
+	bIsTargetActive = true;
+	bIsTargetFalling = false;
+	bIsTargetRaising = false;
+}
+
 void UTargetAnimInstance::UpdateAnimationProperties(float DeltaTime)
 {
+	// Get a target reference if one is not set
 	if(Target == nullptr)
 	{
 		Target = Cast<ATarget>(TryGetPawnOwner());
 	}
-	if(Target)
-	{
-		
-	}
 }
 
+// Plays the target falling animation
 void UTargetAnimInstance::InitTargetFall()
 {
 	bIsTargetActive = false;
@@ -23,18 +29,10 @@ void UTargetAnimInstance::InitTargetFall()
 	bIsTargetRaising = false;
 }
 
+// Plays the target raising animation
 void UTargetAnimInstance::InitTargetRaise()
 {
 	bIsTargetActive = true;
 	bIsTargetFalling = false;
 	bIsTargetRaising = true;
-}
-
-
-void UTargetAnimInstance::NativeInitializeAnimation()
-{
-	Target = Cast<ATarget>(TryGetPawnOwner());
-	bIsTargetActive = true;
-	bIsTargetFalling = false;
-	bIsTargetRaising = false;
 }

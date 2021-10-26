@@ -17,12 +17,14 @@ class SHOOTINGGALLERY_API UHighScoreSaveGame : public USaveGame
 public:
 	UHighScoreSaveGame();
 
+	// Adds leading zeros to high score
 	UFUNCTION(BlueprintCallable)
 	FString GetPrettyHighScore();
-	
+
+	// High score to save/load
 	UPROPERTY(VisibleAnywhere, Category="Scoring")
 	int HighScore;
-
+	
 	UPROPERTY(VisibleAnywhere, Category="Scoring")
 	FString SaveSlotName;
 

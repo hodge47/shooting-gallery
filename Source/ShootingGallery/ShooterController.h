@@ -7,6 +7,7 @@
 #include "GameFramework/Pawn.h"
 #include "ShooterController.generated.h"
 
+// Hit and shot missed delegate declarations
 DECLARE_DELEGATE_OneParam(FOnTargetHit, class ATarget*);
 DECLARE_DELEGATE(FOnShotMissed);
 
@@ -29,23 +30,31 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
+	// Hit and shot missed delegates
 	FOnTargetHit OnTargetHit;
 	FOnShotMissed OnShotMissed;
 
 private:
+	// Root scene component
 	class USceneComponent* SceneRootComponent;
+	// The bb gun static mesh
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Mesh, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* GunMesh;
+	// Spring arm component to operate camera
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
+	// The main game camera
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category=Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
-
+	// Target controller reference
 	class ATargetController* TargetController;
 
 private:
+	// Input bound function to look up and down
 	void LookUp(float value);
+	// Input bound function to look right and left
 	void LookRight(float value);
+	// Input bound function to fire bb gun
     void Fire();
 };
