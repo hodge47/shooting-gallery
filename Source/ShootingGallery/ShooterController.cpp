@@ -21,9 +21,6 @@ AShooterController::AShooterController()
 	SceneRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	SetRootComponent(SceneRootComponent);
 
-	// Create the mesh component
-	GunMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun Mesh"));
-
 	// Create the spring arm
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
 	SpringArm->TargetArmLength = 600.f;
@@ -33,7 +30,6 @@ AShooterController::AShooterController()
 	// Create the camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, SpringArm->SocketName);
-
 }
 
 // Called when the game starts or when spawned

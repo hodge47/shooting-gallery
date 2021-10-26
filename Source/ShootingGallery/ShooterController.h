@@ -38,9 +38,6 @@ public:
 private:
 	// Root scene component
 	class USceneComponent* SceneRootComponent;
-	// The bb gun static mesh
-	UPROPERTY(EditDefaultsOnly, Category=Mesh, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* GunMesh;
 	// Spring arm component to operate camera
 	UPROPERTY(EditDefaultsOnly, Category=Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
