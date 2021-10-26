@@ -47,8 +47,12 @@ private:
 	// Shot hit sound cue
 	UPROPERTY(EditDefaultsOnly, Category="Sounds", meta = (AllowPrivateAccess = "true"))
 	class USoundCue* ShotHitSoundCue;
+	// Shot missed sound cue
 	UPROPERTY(EditDefaultsOnly, Category="Sounds", meta = (AllowPrivateAccess = "true"))
 	class USoundCue* ShotMissedSoundCue;
+	// Particles to spawn on line trace blocking hit
+	UPROPERTY(EditDefaultsOnly, Category="Particles", meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* ImpactParticles;
 	
 	// Target controller reference
 	class ATargetController* TargetController;

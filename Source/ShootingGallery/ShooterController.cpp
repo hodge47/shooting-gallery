@@ -128,6 +128,8 @@ void AShooterController::Fire()
 
 			// Spawn impact particles here if desired using the hit location
 			LineTraceHitLocation = ScreenTraceHit.Location;
+			if(ImpactParticles)
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, LineTraceHitLocation);
 		}
 		// If there was no blocking hit, broadcast that the shot was missed
 		else
